@@ -1,0 +1,13 @@
+:::Laserwhaaaat?:::
+The goal is to be able to control a laser pointer with a webapp. This could serve as
+an advanced cat toy or some kind of targeting system.
+
+There are two parts of the code. Client side which is based on an arduino platform running C code.
+Server side which is made with python to serve a web interface to the user.
+Between these two parts there is a serial communication thru USB.
+
+:::Requirements::: 
+* Computer with Python + pySerial installed. (http://python.org/ and http://pyserial.sourceforge.net/)
+* Arduino platform with USB-interface. I use Duemilanove but any Arduino should work. (www.arduino.cc/)
+* A HTML5 compliant web browser with web socket support. Latest Google Chrome or Apple Safari.
+
