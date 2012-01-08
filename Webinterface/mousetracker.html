@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Sketch</title>
+    <style>
+      body{
+          margin: 0px; padding: 0px;
+      }
+      canvas {
+          margin: 0px; padding: 0px;
+		  border-style: solid;
+          border-width: 2px;
+          border-color: blue;
+      }
+    </style>
+    <meta name="viewport" content="width=device-width,user-scalable=no" /> 
+  </head>
+  <body>
+    <!-- w = 128x2-10, h = 64x2-10 -->
+    <canvas id="sketch_canvas" width="246" height="118"></canvas>
+	<table style="float: right;">
+		<tr>
+			<td>
+				<input type="button" onclick="turnOn();" value="On" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="button" onclick="turnOff();" value="Off" />
+			</td>
+		</tr>
+	</table>		
+  <!-- <script type="text/javascript" src="http://intridea.github.com/sketch.js/lib/sketch.js"></script> -->
+  <script type="text/javascript">
+  function turnOn() {
+	ws.send(JSON.stringify({value: "on"}));
+	return false;
+  }
+  function turnOff() {
+	ws.send(JSON.stringify({value: "off"}));
+	return false;
+  }
+
+/**
+ * Sketch JS
+ */
+
+var ctx = document.getElementById("sketch_canvas").getContext("2d");
+
+var pX = new Array();
+var pY = new Array();
+var isDrag = new Array();
+var sequence = "";
+
+function isIpodSafari() {
+    var ua = navigator.userAgent.match(/iP/);
+    return (ua == null) ? false : true;
+}
+
+function addPoint(x, y, dragging) {
+    pX.push(x);
+    pY.push(y);
+    isDrag.push(dragging);
+}
+
+function redraw() {
+    ctx.strokeStyle = "#00aaaa";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 5;
+    var ppX, ppY;
+    for(var i = 0; i < pX.length; i++) {
+        ctx.beginPath();
+        if(isDrag[i] && i > 0) {
+            ppX = pX[i-1];
+            ppY = pY[i-1];
+        } else {
+            ppX = pX[i] - 1;
+            ppY = pY[i];
+        }
+        ctx.moveTo(ppX, ppY);
+        ctx.lineTo(pX[i], pY[i]);
+        if(ppX >= 0 && ppX <= 246 && ppY >= 0 && ppY <= 118) {
+            sequence += Math.round(ppX/2) + "w" + Math.round(ppY/2) + "s";
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+    if(sendable) {
+        ws.send(JSON.stringify({value:sequence + "."}));
+        sequence = "";
+        sendable = false;
+    }
+    pX = new Array();
+    pY = new Array();
+}
+
+var sendable = false;
+var ws = new WebSocket("ws://192.168.1.107:8888/glcd"); //Modify this! 
+ws.onopen = function() {};
+ws.onmessage = function (evt) {
+    if(evt.data == "ok") {
+        sendable = true;
+    } else {
+        sendable = false;
+    }
+};
+
+
+var isPaint;
+
+function pendown(e) {
+    if(isIpodSafari()) {
+        e.preventDefault();
+        e = e.targetTouches[0];
+    }
+    isPaint = true;
+    addPoint(e.pageX, e.pageY, false);
+    redraw();
+}
+document.getElementById("sketch_canvas").addEventListener("mousedown", pendown, false);
+document.getElementById("sketch_canvas").addEventListener("touchstart", pendown, false);
+
+function penmove(e) {
+    if(isIpodSafari()) {
+        e.preventDefault();
+        e = e.targetTouches[0];
+    }
+    if(isPaint){
+        addPoint(e.pageX, e.pageY, true);
+        redraw();
+    }
+}
+document.getElementById("sketch_canvas").addEventListener("mousemove", penmove, false);
+document.getElementById("sketch_canvas").addEventListener("touchmove", penmove, false);
+
+function penup(e) {
+    isPaint = false;
+}
+document.getElementById("sketch_canvas").addEventListener("mouseup", penup, false);
+document.getElementById("sketch_canvas").addEventListener("touchend", penup, false);
+
+  </script>
+  </body>
+</html>
