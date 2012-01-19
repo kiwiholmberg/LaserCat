@@ -2,7 +2,7 @@
 <html lang="en" xml:lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Sketch</title>
+    <title>LaserCat Controller</title>
     <style>
       body{
           margin: 0px; padding: 0px;
@@ -17,8 +17,8 @@
     <meta name="viewport" content="width=device-width,user-scalable=no" /> 
   </head>
   <body>
-    <!-- w = 128x2-10, h = 64x2-10 -->
-    <canvas id="sketch_canvas" width="246" height="118"></canvas>
+    <!-- So 3*180° ==> 540px -->
+    <canvas id="sketch_canvas" width="540" height="540"></canvas>
 	<table style="float: right;">
 		<tr>
 			<td>
@@ -31,7 +31,7 @@
 			</td>
 		</tr>
 	</table>		
-  <!-- <script type="text/javascript" src="http://intridea.github.com/sketch.js/lib/sketch.js"></script> -->
+  
   <script type="text/javascript">
   function turnOn() {
 	ws.send(JSON.stringify({value: "on"}));
@@ -80,8 +80,11 @@ function redraw() {
         }
         ctx.moveTo(ppX, ppY);
         ctx.lineTo(pX[i], pY[i]);
-        if(ppX >= 0 && ppX <= 246 && ppY >= 0 && ppY <= 118) {
-            sequence += Math.round(ppX/2) + "w" + Math.round(ppY/2) + "s";
+        if(ppX >= 0 && ppX <= 540 && ppY >= 0 && ppY <= 540) {
+			//Reversing axis and divide
+			ppX = Math.round((540-ppX)/3)
+			ppY = Math.round((540-ppY)/3)
+            sequence += ppX + "w" + ppY + "s";
         }
         ctx.closePath();
         ctx.stroke();
@@ -96,7 +99,7 @@ function redraw() {
 }
 
 var sendable = false;
-var ws = new WebSocket("ws://192.168.1.107:8888/glcd"); //Modify this! 
+var ws = new WebSocket("ws://192.168.1.116:8888/lasercontroller"); //Modify this! 
 ws.onopen = function() {};
 ws.onmessage = function (evt) {
     if(evt.data == "ok") {
