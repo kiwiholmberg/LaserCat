@@ -7,6 +7,8 @@ import tornado.web
 import tornado.websocket
 import tornado.escape
 import serial
+import os.path
+import sys
 
 arduino = None
 ARDUINO_PORT = "/dev/tty.usbserial-A700dZKK"  # Modify this to your Arduino Com-port!
@@ -15,12 +17,19 @@ ARDUINO_PORT = "/dev/tty.usbserial-A700dZKK"  # Modify this to your Arduino Com-
 class Index(tornado.web.RequestHandler):
     def get(self):
         self.render("mousetracker.html")
+        #self.render("test.html")
 
 
 class Controller(tornado.websocket.WebSocketHandler):
     def open(self):
         global arduino
-        arduino = serial.Serial(ARDUINO_PORT, 19200, timeout=3)
+        try:
+        	arduino = serial.Serial(ARDUINO_PORT, 19200, timeout=3)
+        except:
+        	print("Could not open serial port: " + ARDUINO_PORT + "\nPlease check that" +
+        	"you have selected correct serial port and that arduino is connected.")
+        	print("Shutting down...")
+        	sys.exit()
         print("WebSocket opened")
         arduino.write("c")
         self.write_message("ok")
@@ -40,10 +49,15 @@ class Controller(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
         arduino.close()
 
+
+settings = {
+    "static_path": os.path.join(os.path.dirname(__file__), "static"),
+}
+
 application = tornado.web.Application([
   (r"/", Index),
   (r"/lasercontroller", Controller),
-])
+],**settings)
 
 
 def main():
