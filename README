@@ -1,8 +1,8 @@
 https://github.com/kiwiholmberg/LaserCat
 LaserCat 
 
-:::LASERWHAAAAT?:::
-The goal is to be able to control a laser pointer with a webapp. This could serve as
+:::Laserwhat?:::
+I want to be able to control a laser pointer with a webapp. This could serve as
 an advanced cat toy or some kind of targeting system.
 
 There are two parts of the code. Client side which is based on an Arduino platform running C code.
