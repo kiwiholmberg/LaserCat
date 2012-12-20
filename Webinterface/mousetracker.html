@@ -9,140 +9,34 @@
       }
       canvas {
           margin: 0px; padding: 0px;
-		  border-style: solid;
+          border-style: solid;
           border-width: 2px;
           border-color: blue;
       }
     </style>
     <meta name="viewport" content="width=device-width,user-scalable=no" /> 
-	<!-- <script type="text/javascript" src="/static/jquery.min.js" /> -->
   </head>
   <body>
-    <!-- So 3*180° ==> 540px -->
     <canvas id="sketch_canvas" width="540" height="540"></canvas>
-	<table style="float: right;">
-		<tr>
-			<td>
-				<input type="button" onclick="turnOn();" value="On" />
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<input type="button" onclick="turnOff();" value="Off" />
-			</td>
-		</tr>
+    
+    
+    <table style="float: right;">
+        <tr>
+            <td>
+                <input type="button" onclick="turnOn();" value="On" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="button" onclick="turnOff();" value="Off" />
+            </td>
+        </tr>
 
-	</table>		
-  
-  <script type="text/javascript">
-	function turnOn() {
-		ws.send(JSON.stringify({value: "on"}));
-		return false;
-	}
-	function turnOff() {
-		ws.send(JSON.stringify({value: "off"}));
-		return false;
-	}
-
-
-	var ctx = document.getElementById("sketch_canvas").getContext("2d");
-	
-	var pX = new Array();
-	var pY = new Array();
-	var isDrag = new Array();
-	var sequence = "";
-	
-	function isIpodSafari() {
-	    var ua = navigator.userAgent.match(/iP/);
-	    return (ua == null) ? false : true;
-	}
-	
-	function addPoint(x, y, dragging) {
-	    pX.push(x);
-	    pY.push(y);
-	    isDrag.push(dragging);
-	}
-	
-	function redraw() {
-	    ctx.strokeStyle = "#00aaaa";
-	    ctx.lineJoin = "round";
-	    ctx.lineWidth = 5;
-	    var ppX, ppY;
-	    for(var i = 0; i < pX.length; i++) {
-	        ctx.beginPath();
-	        if(isDrag[i] && i > 0) {
-	            ppX = pX[i-1];
-	            ppY = pY[i-1];
-	        } else {
-	            ppX = pX[i] - 1;
-	            ppY = pY[i];
-	        }
-	        ctx.moveTo(ppX, ppY);
-	        ctx.lineTo(pX[i], pY[i]);
-	        if(ppX >= 0 && ppX <= 540 && ppY >= 0 && ppY <= 540) {
-				//Reversing axis and divide
-				ppX = Math.round((540-ppX)/3)
-				ppY = Math.round((540-ppY)/3)
-	            sequence += ppX + "w" + ppY + "s";
-	        }
-	        ctx.closePath();
-	        ctx.stroke();
-	    }
-	    if(sendable) {
-	        ws.send(JSON.stringify({value:sequence + "."}));
-	        sequence = "";
-	        sendable = false;
-	    }
-	    pX = new Array();
-	    pY = new Array();
-	}
-	
-	var connectionString = "ws://" + location.host + "/lasercontroller"
-	var sendable = false;
-	var ws = new WebSocket(connectionString); 
-	ws.onopen = function() {};
-	ws.onmessage = function (evt) {
-	    if(evt.data == "ok") {
-	        sendable = true;
-	    } else {
-	        sendable = false;
-	    }
-	};
-	
-	
-	var isPaint;
-	
-	function pendown(e) {
-	    if(isIpodSafari()) {
-	        e.preventDefault();
-	        e = e.targetTouches[0];
-	    }
-	    isPaint = true;
-	    addPoint(e.pageX, e.pageY, false);
-	    redraw();
-	}
-	document.getElementById("sketch_canvas").addEventListener("mousedown", pendown, false);
-	document.getElementById("sketch_canvas").addEventListener("touchstart", pendown, false);
-	
-	function penmove(e) {
-	    if(isIpodSafari()) {
-	        e.preventDefault();
-	        e = e.targetTouches[0];
-	    }
-	    if(isPaint){
-	        addPoint(e.pageX, e.pageY, true);
-	        redraw();
-	    }
-	}
-	document.getElementById("sketch_canvas").addEventListener("mousemove", penmove, false);
-	document.getElementById("sketch_canvas").addEventListener("touchmove", penmove, false);
-	
-	function penup(e) {
-	    isPaint = false;
-	}
-	document.getElementById("sketch_canvas").addEventListener("mouseup", penup, false);
-	document.getElementById("sketch_canvas").addEventListener("touchend", penup, false);
-
-  </script>
+    </table>        
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="http://dat-gui.googlecode.com/git/build/dat.gui.min.js"></script>
+    <script src="plugins.js"></script>
+    <script src="main.js"></script>
+    
   </body>
 </html>
